@@ -5,10 +5,10 @@ import java.util.*;
 
 public class Subway {
     private String routePath="D:\\IdeaProjects\\Bishe\\data.txt";
-    static Map<String, Node> map=new HashMap<>();		//站点名到站点的映射
-    static Map<Edge,String> eLine=new HashMap<>();			//边到所属线路的映射
-    public static Graph loadMap(String filePath) {
-        System.out.println("loading map from "+filePath);
+     Map<String, Node> map=new HashMap<>();		//站点名到站点的映射
+     Map<Edge,String> eLine=new HashMap<>();			//边到所属线路的映射
+    public  Graph loadMap(String filePath) {
+//        System.out.println("loading map from "+filePath);
         List<Node> vertices = new ArrayList<>();
         List<Edge> edges = new ArrayList<>();
         BufferedReader bufferedReader=null;
@@ -44,10 +44,10 @@ public class Subway {
             System.out.println("failed to read map");
             System.exit(0);
         }
-        System.out.println("load map successfully!");
+//        System.out.println("load map successfully!");
         return new Graph(vertices,edges);
     }
-    public static List<Node> getShortestPath(String start, String end, Graph graph) throws Exception {
+    public  List<Node> getShortestPath(String start, String end, Graph graph) throws Exception {
         List<Node> list=new ArrayList<>();
         try {
             if(!map.containsKey(start)) {
@@ -109,35 +109,76 @@ public class Subway {
         return list;
     }
 
-    public void getOD(int ori, int des) throws Exception {
+    public ArrayList<String> getODPath(int ori, int des) throws Exception {
 //        给起点O,终点D,找到最短路径
 //        TODO:格式化路线图
+        ArrayList<String> OD = new ArrayList<>();
         String s1 = String.valueOf(ori);
         String s2 = String.valueOf(des);
         Graph graph = loadMap(routePath);
         List<Node> shortest = getShortestPath(s1, s2, graph);
-        System.out.print(shortest.get(0));
-        String preLine, inLine;
-        preLine = eLine.get(new Edge(shortest.get(0), shortest.get(1)));
-        inLine = eLine.get(new Edge(shortest.get(1), shortest.get(2)));
-        System.out.print("->" + shortest.get(1));
-        if (!preLine.equals(inLine))
-            System.out.printf("\n换乘地铁" + inLine + "\n");
-        System.out.print("->" + shortest.get(2));
-        for (int i = 3; i < shortest.size(); i++) {
-            preLine = inLine;
-            inLine = eLine.get(new Edge(shortest.get(i - 1), shortest.get(i)));
-            if (!preLine.equals(inLine))
-                System.out.printf("\n换乘地铁" + inLine + "\n");
-            System.out.print("->" + shortest.get(i));
+        if(shortest.size()==2){
+//            System.out.print(shortest.get(0)+","+shortest.get(1));
+            OD.add(String.valueOf(shortest.get(0)));
+            OD.add(String.valueOf(shortest.get(1)));
+        } else {
+//            System.out.print(shortest.get(0));
+            OD.add(String.valueOf(shortest.get(0)));
+            String preLine, inLine;
+            preLine = eLine.get(new Edge(shortest.get(0), shortest.get(1)));
+            inLine = eLine.get(new Edge(shortest.get(1), shortest.get(2)));
+
+//            System.out.print("->" + shortest.get(1));
+
+            OD.add(String.valueOf(shortest.get(1)));
+
+            if (!preLine.equals(inLine)) {
+//                System.out.printf("\n换乘地铁" + inLine + "\n");
+                OD.add(inLine);
+            }
+
+
+//            System.out.print("->" + shortest.get(2));
+
+            OD.add(String.valueOf(shortest.get(2)));
+            for (int i = 3; i < shortest.size(); i++) {
+                preLine = inLine;
+                inLine = eLine.get(new Edge(shortest.get(i - 1), shortest.get(i)));
+                if (!preLine.equals(inLine)) {
+//                    System.out.printf("\n换乘地铁" + inLine + "\n");
+                    OD.add(inLine);
+                }
+//                System.out.print("->" + shortest.get(i));
+                OD.add(String.valueOf(shortest.get(i)));
+            }
         }
+        return OD;
     }
 
     public static void main(String[] args) throws Exception {
 //        test
-        Subway sb = new Subway();
-        sb.getOD(43,21);
-    }
+
+
+//        od = sb.getODPath(0,2);
+//
+//        for (int i = 0; i < od.size(); i++) {
+//            System.out.println(od.get(i));
+//        }
+        for(int j =1;j<80;j++) {
+            if (j == 51){
+                continue;
+            }
+            Subway sb = new Subway();
+//            Subway sb1 = new Subway();
+            ArrayList<String > od;
+            od = sb.getODPath(0, j);
+//            od1 =sb1.getODPath(0,2);
+
+            for (int i = 0; i < od.size(); i++) {
+                System.out.println(od.get(i));
+            }
+        }
+//    }
 
 //    public static void main(String args[]) throws Exception {
 ////        Scanner input=new Scanner(System.in);
@@ -163,6 +204,6 @@ public class Subway {
 //                System.out.printf("\n换乘地铁"+inLine+"\n");
 //            System.out.print("->"+shortest.get(i));
         }
-//    }
+   }
 
 

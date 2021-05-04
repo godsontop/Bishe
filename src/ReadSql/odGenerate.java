@@ -17,7 +17,7 @@ public class odGenerate {
 //
 //        }
         od.update(od.startTime);
-        System.out.println(od.getOD(1,10));
+        System.out.println(od.getOD(1,5));
         System.out.println(od.getEndTime(od.startTime));
 
 
@@ -76,7 +76,7 @@ public class odGenerate {
         SqlToJava stj = new SqlToJava();
         try {
             Connection con = stj.getConnection();
-            System.out.println("开始读取数据");
+//            System.out.println("开始读取数据");
             Statement cmd = con.createStatement();
             ResultSet rs = cmd.executeQuery("select count(*) " +
                     "from record20190104 a join record20190104 b " +
@@ -86,10 +86,11 @@ public class odGenerate {
                     "and a.time between "+"\'"+startTime+"\'"+" and"+"\'"+getEndTime(startTime)+"\'");
             rs.next();
             int res = rs.getInt(1);
-            System.out.println(res);
+//            System.out.println(res);
 //            // 关闭连接
 //            cmd.close();//关闭命令对象连接
 //            con.close();//关闭数据库连接
+            System.out.println(res);
             return res;
         } catch (SQLException | ParseException e) {
             e.printStackTrace();

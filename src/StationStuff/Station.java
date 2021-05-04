@@ -1,18 +1,41 @@
 package StationStuff;
 
+import java.util.ArrayList;
+
 public class Station {
     private int index;
 
-    private int stationFlowUp;
-
+    private int stationFlowUp ;
+//左or上 1
     private int stationFlowDown;
+
+    public int getStationFlow() {
+
+        return stationFlowUp+stationFlowDown;
+    }
+
+    public void setStationFlow(int stationFlow) {
+        this.stationFlow = stationFlow;
+    }
+
+    //右or下 0
+    private int stationFlow =stationFlowDown+stationFlowUp;
 
     private int spaceIndex;
 
     private Space space;
-//    左or上
 
-    Station(int index, int spaceIndex){
+    private ArrayList<Flow> FlowStack = new ArrayList<>();
+
+    public ArrayList<Flow> getFlowStack() {
+        return FlowStack;
+    }
+
+    public void setFlowStack(ArrayList<Flow> flowStack) {
+        FlowStack = flowStack;
+    }
+
+    public Station(int index, int spaceIndex){
         this.index = index;
         this.spaceIndex = index;
 
