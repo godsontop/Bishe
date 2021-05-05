@@ -3,7 +3,7 @@ package GraphAlg;
 import java.io.*;
 import java.util.*;
 
-public class Subway {
+public class PathFinder {
     private String routePath="D:\\IdeaProjects\\Bishe\\data.txt";
      Map<String, Node> map=new HashMap<>();		//站点名到站点的映射
      Map<Edge,String> eLine=new HashMap<>();			//边到所属线路的映射
@@ -168,10 +168,10 @@ public class Subway {
             if (j == 51){
                 continue;
             }
-            Subway sb = new Subway();
+            PathFinder pf = new PathFinder();
 //            Subway sb1 = new Subway();
             ArrayList<String > od;
-            od = sb.getODPath(0, j);
+            od = pf.getODPath(0, j);
 //            od1 =sb1.getODPath(0,2);
 
             for (int i = 0; i < od.size(); i++) {

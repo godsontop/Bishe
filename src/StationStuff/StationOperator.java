@@ -3,6 +3,7 @@ package StationStuff;
 
 import java.util.ArrayList;
 
+
 public class StationOperator {
     private ArrayList<Station> stations = new ArrayList<>();
     private ArrayList<Flow> flows = new ArrayList<>();
@@ -64,7 +65,7 @@ public class StationOperator {
 //        需要参数：所有车站的列表，进站出战、客流数、方向
         Station s = ar.get(startIndex);
         ArrayList<Flow> flow = s.getFlowStack();
-        flow.add(new Flow(volume,dir,startIndex,endIndex,0));
+        flow.add(new Flow(volume,dir,startIndex,endIndex,30*1000));
         s.setStationFlowUp(queryVolume(flow,1));
         s.setStationFlowDown(queryVolume(flow,0));
 

@@ -16,6 +16,26 @@ public class Flow {
     private int startIndex;
     private int endIndex;
     private int iKiTime;
+    private int currentStation;
+
+    public int getCurrentStation() {
+        return currentStation;
+    }
+
+    public void setCurrentStation(int currentStation) {
+        this.currentStation = currentStation;
+    }
+
+    private ArrayList<Integer> midIndex = new ArrayList<>();
+
+    public ArrayList<Integer> getMidIndex() {
+        return midIndex;
+    }
+
+    public void setMidIndex(ArrayList<Integer> midIndex) {
+        this.midIndex = midIndex;
+    }
+//    中间站
 
     public int getiKiTime() {
         return iKiTime;
