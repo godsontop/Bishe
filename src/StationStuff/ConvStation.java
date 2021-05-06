@@ -2,14 +2,17 @@ package StationStuff;
 
 public class ConvStation extends Station {
 //高级版的车站 5近江 46钱江路 10凤起路
-    private int extendSpace;
-    ConvStation(int index, int spaceIndex){
-
-        super(index,spaceIndex);
+    private Space extendSpace = new Space();
+    ConvStation(int index){
+        super(index);
     }
-    public void setExtendSpace(int extendSpace){
-        this.extendSpace = extendSpace;
 
+    public Space getExtendSpace() {
+        return extendSpace;
+    }
+
+    public void setExtendSpace(Space extendSpace) {
+        this.extendSpace = extendSpace;
     }
 
     public void getOff(){

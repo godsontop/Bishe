@@ -18,8 +18,27 @@ public class Space {
 
     int spaceFlow;
 
+    public int getIndex() {
+        return index;
+    }
 
+    public void setIndex(int index) {
+        this.index = index;
+    }
 
+    public int getSpaceTime() {
+        return spaceTime;
+    }
 
+    public void setSpaceTime(int spaceTime) {
+        this.spaceTime = spaceTime;
+    }
 
+    public int getSpaceFlow() {
+        return spaceFlow;
+    }
+
+    public void setSpaceFlow(int spaceFlow) {
+        this.spaceFlow = spaceFlow;
+    }
 }

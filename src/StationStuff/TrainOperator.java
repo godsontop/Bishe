@@ -60,16 +60,16 @@ public class TrainOperator {
         return arr;
     }
 
-    static int[] line1RouteUp = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
-    static int[] line1RouteDown = revelArr(line1RouteUp);
-    static int[] line101RouteUp = {20,21,22,23,24,25,26,27};
-    static int[] line101RouteDown = revelArr(line101RouteUp);
-    static int[] line102RouteUp = {20,28,29,30,31,32,33};
-    static int[] line102RouteDown = revelArr(line102RouteUp);
-    static int[] line2RouteUp = {34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,10,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66};
-    static int[] line2RouteDown = revelArr(line2RouteUp);
-    static int[] line4RouteUp = {67,68,69,70,71,72,73,74,5,75,76,77,46,78,79,80,16};
-    static int[] line4RouteDown = {};
+    private static int[] line1RouteUp = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    private static int[] line1RouteDown = revelArr(line1RouteUp);
+    private static int[] line101RouteUp = {20,21,22,23,24,25,26,27};
+    private static int[] line101RouteDown = revelArr(line101RouteUp);
+    private static int[] line102RouteUp = {20,28,29,30,31,32,33};
+    private static int[] line102RouteDown = revelArr(line102RouteUp);
+    private static int[] line2RouteUp = {34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,10,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66};
+    private static int[] line2RouteDown = revelArr(line2RouteUp);
+    private static int[] line4RouteUp = {67,68,69,70,71,72,73,74,5,75,76,77,46,78,79,80,16};
+    private static int[] line4RouteDown = revelArr(line4RouteUp);
 
     ArrayList<Train> Line1 = new ArrayList<>();
     ArrayList<Train> Line101 = new ArrayList<>();
@@ -146,16 +146,14 @@ public class TrainOperator {
     public void deletePast(Train tr){
         tr.getTrainRoute().remove(0);
     }
-    public void atStation(ArrayList<Flow> stationFlow,Station s,Train tr) throws Exception {
+    public void atStation(ArrayList<Flow> stationFlow,ArrayList<Flow> trainFlow,Station s,Train tr) throws Exception {
 //        在车站要完成的事：装载客流、释放客流、更新列车车站
 //        TODO:想办法将到达终点站的车移出队列！
         tr.setCurrentTime(0);
         analysNextStop(tr);
         deletePast(tr);
-//        dropFlow();
+        dropFlow(trainFlow,tr,s);
         loadFlow(stationFlow,tr);
-
-
 
     }
 
@@ -163,12 +161,14 @@ public class TrainOperator {
 //        将车站客流转入到列车
         FlowOperator fo = new FlowOperator();
         if(flows.size()==0) {
+//            车站没有人就不加载
             return;
         }else {
             for (int i = 0; i < flows.size(); i++) {
-                if (flows.get(i).getiKiTime() > 1000 * 120) {
-                    if (fo.findNextLeave(flows.get(i)) == tr.nextStop) {
-                        tr.trainFlow.add(flows.get(i));
+                if (flows.get(i).getiKiTime() > 1000 * Flow.getInBoundTime()) {
+                    if (flows.get(i).getNextStop() == tr.getNextStop()) {
+                        flows.get(i).setLabel("运输中");
+                        tr.getTrainFlow().add(flows.get(i));
                         flows.remove(i);
                     }
                 }
@@ -177,13 +177,23 @@ public class TrainOperator {
 
 
     }
-    void dropFlow(ArrayList<Flow> flows,Train tr,Station s) {
+
+    void dropFlow(ArrayList<Flow> trainFlow,Train tr,Station s) throws Exception {
+//        下车时已帮乘客找好了下一路线
         FlowOperator fo = new FlowOperator();
-        if(flows.size()==0) {
+        if(trainFlow.size()==0) {
             return;
         }else {
-            for (int i = 0; i < flows.size(); i++) {
-//            if(flows.get(i).getMidIndex())
+            for (int i = 0; i < trainFlow.size(); i++) {
+            if(trainFlow.get(i).getNextStop() == tr.getCurrentStop()){
+                Flow flow = trainFlow.get(i);
+                flow.setCurrentStation(tr.getCurrentStop());//更新这股流的到达站
+                fo.nextLeaveIterator(flow); //更新这股流的下一站
+                flow.setLabel(fo.convORLeave(flow));
+                s.getFlowStack().add(flow);
+                trainFlow.remove(i);
+
+            }
             }
         }
 

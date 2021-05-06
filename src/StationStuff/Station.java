@@ -21,9 +21,15 @@ public class Station {
     //右or下 0
     private int stationFlow =stationFlowDown+stationFlowUp;
 
-    private int spaceIndex;
+    private Space space = new Space();
 
-    private Space space;
+    public Space getSpace() {
+        return space;
+    }
+
+    public void setSpace(Space space) {
+        this.space = space;
+    }
 
     private ArrayList<Flow> FlowStack = new ArrayList<>();
 
@@ -35,9 +41,8 @@ public class Station {
         FlowStack = flowStack;
     }
 
-    public Station(int index, int spaceIndex){
+    public Station(int index){
         this.index = index;
-        this.spaceIndex = index;
 
     }
 
@@ -53,9 +58,6 @@ public class Station {
         return stationFlowDown;
     }
 
-    public int getSpaceIndex() {
-        return spaceIndex;
-    }
 
     public void setIndex(int index) {
         this.index = index;
@@ -69,9 +71,6 @@ public class Station {
         this.stationFlowDown = stationFlowDown;
     }
 
-    public void setSpaceIndex(int spaceIndex) {
-        this.spaceIndex = spaceIndex;
-    }
     //    左or上区间
 
 

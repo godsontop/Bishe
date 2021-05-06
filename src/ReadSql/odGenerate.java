@@ -11,7 +11,7 @@ import java.util.Date;
 public class odGenerate {
     public odGenerate()  {
     }
-    int getSpaceTime(int index1, int index2){
+    public int getSpaceTime(int index1, int index2){
 //        获得区间时间，从数据库查找，index1，2必须在图上是相邻的
         int a;
         int b;
@@ -35,10 +35,15 @@ public class odGenerate {
             rs.next();
             int res = rs.getInt(1);
 //            // 关闭连接
-//            cmd.close();//关闭命令对象连接
-//            con.close();//关闭数据库连接
+            cmd.close();//关闭命令对象连接
+            con.close();//关闭数据库连接
 //            System.out.println(res);
-            return res;
+            if(res==0) {
+//                TODO:处理的不好
+                return 0;
+            } else {
+                return res;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(0);
@@ -66,8 +71,8 @@ public class odGenerate {
             int res = rs.getInt(1);
 //            System.out.println(res);
 //            // 关闭连接
-//            cmd.close();//关闭命令对象连接
-//            con.close();//关闭数据库连接
+            cmd.close();//关闭命令对象连接
+            con.close();//关闭数据库连接
 //            System.out.println(res);
             return res;
         } catch (SQLException e) {

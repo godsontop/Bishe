@@ -17,6 +17,42 @@ public class Flow {
     private int endIndex;
     private int iKiTime;
     private int currentStation;
+    private int nextStop;
+    private String label;
+    private static int inBoundTime = 120;
+    private static int outBoundTime = 120;
+
+    public static int getInBoundTime() {
+        return inBoundTime;
+    }
+
+    public static void setInBoundTime(int inBoundTime) {
+        Flow.inBoundTime = inBoundTime;
+    }
+
+    public static int getOutBoundTime() {
+        return outBoundTime;
+    }
+
+    public static void setOutBoundTime(int outBoundTime) {
+        Flow.outBoundTime = outBoundTime;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public int getNextStop() {
+        return nextStop;
+    }
+
+    public void setNextStop(int nextStop) {
+        this.nextStop = nextStop;
+    }
 
     public int getCurrentStation() {
         return currentStation;

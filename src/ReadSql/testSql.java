@@ -32,14 +32,13 @@ public class testSql {
 
                     }
                     PathFinder pf = new PathFinder();
-
-
                     so.addVolume(so.getStations(), j, k, od.getOD(j, k,sim), fo.getDir(pf.getODPath(j, k)));
-
                 }
-                Station s = so.getStations().get(j);
+                for(i =0;i<so.getStations().get(j).getFlowStack().size();i++)
+                fo.planRoute(so.getStations().get(j).getFlowStack().get(i));
+//                String s = so.getStations().get(j);
                 String s1 = String.valueOf(j);
-                System.out.println("在"+sim.getStartTime()+"到"+sim.getEndTime()+s1 + "号站的客流是" + s.getStationFlow());
+//                System.out.println("在"+sim.getStartTime()+"到"+sim.getEndTime()+s1 + "号站的客流是" + s.getStationFlow());
 
             }
 
