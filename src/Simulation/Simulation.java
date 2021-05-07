@@ -6,15 +6,16 @@ import java.util.Date;
 
 public class Simulation {
 //    仿真模块，应该能完成：提供当前时间和结束时间、每个循环update()
-    private  int timeStamp = 60;
+    private static int timeStamp = 60;
     private String startTime = "2019-01-04 06:00:00";
     //    private String endTime = "2019-01-04 07:00:00";
     private String endTime = analysEndTime(startTime);
 
+
     public Simulation() throws ParseException {
     }
 
-    public int getTimeStamp() {
+    public static int getTimeStamp() {
         return timeStamp;
     }
 
@@ -54,6 +55,7 @@ public class Simulation {
         this.endTime = analysEndTime(startTime);
         return true;
     }
+
 
 
 }

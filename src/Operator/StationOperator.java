@@ -1,7 +1,11 @@
-package StationStuff;
+package Operator;
 
 
 import ReadSql.odGenerate;
+import Simulation.Simulation;
+import StationStuff.Flow;
+import StationStuff.Station;
+import cn.hutool.core.util.ArrayUtil;
 
 import java.util.ArrayList;
 
@@ -58,37 +62,17 @@ public class StationOperator {
     public void initStation(){
         //        TODO:写的很烂，没有扩展性。有时间再改吧
         for(int i = 0;i<=80;i++) {
-            int[] specialStation = {51,5, 10, 15,46,28,52,75,78};
-            if(i == specialStation[0]){
-                continue;
-            }
-            if(i == specialStation[1]){
-                continue;
-            }
-            if(i == specialStation[2]){
-                continue;
-            }
-            if(i == specialStation[3]){
-                continue;
-            }
-            if(i == specialStation[4]){
-                continue;
-            }
-            if(i == specialStation[5]){
-                continue;
-            }
-            if(i == specialStation[6]){
-                continue;
-            }
-            if(i == specialStation[7]){
-                continue;
-            }
-            if(i == specialStation[8]){
+//            int[] specialStation = {51,5, 10, 15,46,28,52,75,78,0,34,67};
+            int[] specialStation = {0,5,10,15,28,34,46,51,52,67,75,78};
+            if(ArrayUtil.contains(specialStation,i)){
                 continue;
             }
             addNormalStation(stations,i);
 
         }
+        stations.add(initNullSpaceStation(0));
+        stations.add(initNullSpaceStation(34));
+        stations.add(initNullSpaceStation(67));
         stations.add(initSpecialStation(28,20));
         stations.add(initSpecialStation(52,10));
         stations.add(initSpecialStation(75,5));
@@ -102,6 +86,14 @@ public class StationOperator {
 
     }
 
+    public Station initNullSpaceStation(int index){
+        odGenerate od = new odGenerate();
+        Station st = new Station(index);
+        st.getSpace().setIndex(index);
+        st.getSpace().setSpaceTime(0);
+        return st;
+    }
+
     public Station initSpecialStation(int index,int nextIndex){
 //        本车站，相邻车站编号
         odGenerate od = new odGenerate();
@@ -113,9 +105,9 @@ public class StationOperator {
 
     }
 
-    public ConvStation initConvStation(int index,int spaceTime1,int extendIndex,int spaceTime2){
+    public Station initConvStation(int index, int spaceTime1, int extendIndex, int spaceTime2){
         //        前两位数字 相邻站点号，1：第一个额外换乘方向 0：防止混淆
-        ConvStation conv = new ConvStation(index);
+        Station conv = new Station(index);
         conv.getSpace().setIndex(index);
         conv.getSpace().setSpaceTime(spaceTime1);
         conv.getExtendSpace().setIndex(extendIndex);
@@ -128,7 +120,7 @@ public class StationOperator {
         FlowOperator fo = new FlowOperator();
         Station s = ar.get(startIndex);
         ArrayList<Flow> flow = s.getFlowStack();
-        Flow fl = new Flow(volume,dir,startIndex,endIndex,30*1000);
+        Flow fl = new Flow(volume,dir,startIndex,endIndex, Simulation.getTimeStamp()*1000);
         fl.setCurrentStation(startIndex);
         fo.planRoute(fl);
         fl.setLabel("候车");
@@ -143,7 +135,15 @@ public class StationOperator {
 //            s.setStationFlowDown(volume);
 //        }
     }
-
+    public void stationFlowIterate(ArrayList<Station>st){
+        FlowOperator fo = new FlowOperator();
+        for(int i=0;i<st.size();i++){
+            if(i==51){
+                continue;
+            }
+            fo.FlowIterate(st.get(i).getFlowStack());
+        }
+    }
 
     public int queryVolume(ArrayList<Flow> flows,int dir   ){
         int vol  = 0;
@@ -158,6 +158,15 @@ public class StationOperator {
 ////        参数：流量数组、需要查询时间的阈值，超过了阈值返回true;
 //
 //    }
+    public int getIndexInArrayListFromStationIndex(int stationIndex, StationOperator so){
+    //        给定车站编号在数组中找到索引位置
+        for( int i=0;i<so.getStations().size();i++){
+            if(so.getStations().get(i).getIndex()==stationIndex){
+                return i;
+            }
+        }
+        return -1;
+    }
 
     public void loadToSpace(){
 //        车站客流加载到区间

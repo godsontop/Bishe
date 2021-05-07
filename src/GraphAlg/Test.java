@@ -1,9 +1,8 @@
 package GraphAlg;
 
 import StationStuff.Flow;
-import StationStuff.FlowOperator;
-import StationStuff.Train;
-import StationStuff.TrainOperator;
+import Operator.FlowOperator;
+import Operator.TrainOperator;
 
 import java.util.ArrayList;
 

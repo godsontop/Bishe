@@ -52,7 +52,7 @@ public class odGenerate {
 //        err 12:SQL exception
     }
 
-    int getOD(int O, int D, Simulation sim) {
+    public int getOD(int O, int D, Simulation sim) {
         String s1 = "\'"+String.valueOf(O)+"\'";
         String s2 = "\'"+String.valueOf(D)+"\'";
 //        System.out.println(s1+s2);
@@ -61,20 +61,49 @@ public class odGenerate {
             Connection con = stj.getConnection();
 //            System.out.println("开始读取数据");
             Statement cmd = con.createStatement();
-            ResultSet rs = cmd.executeQuery("select count(*) " +
-                    "from record201901040610 a join record201901040610 b " +
-                    "on a.userID=b.userID " +
-                    "where a.status='1' and b.status='0'and b.time>a.time and DATEDIFF(minute,a.time,b.time)<100" +
-                    "and a.stationID="+s1+" and b.stationID="+s2+
-                    "and a.time between "+"\'"+sim.getStartTime()+"\'"+" and"+"\'"+sim.getEndTime()+"\'");
-            rs.next();
-            int res = rs.getInt(1);
+            if(O==10){
+                ResultSet rs = cmd.executeQuery("select count(*) " +
+                        "from record201901040610 a join record201901040610 b " +
+                        "on a.userID=b.userID " +
+                        "where a.status='1' and b.status='0'and b.time>a.time and DATEDIFF(minute,a.time,b.time)<100" +
+                        "and (a.stationID="+s1+"or a.stationID="+"\'"+"51"+"\'"+")"+" and b.stationID="+s2+
+                        "and a.time between "+"\'"+sim.getStartTime()+"\'"+" and"+"\'"+sim.getEndTime()+"\'");
+                rs.next();
+                int res = rs.getInt(1);
 //            System.out.println(res);
 //            // 关闭连接
-            cmd.close();//关闭命令对象连接
-            con.close();//关闭数据库连接
-//            System.out.println(res);
-            return res;
+                cmd.close();//关闭命令对象连接
+
+                con.close();//关闭数据库连接
+            System.out.println(res);
+                return res;
+            } else if(D==10){
+                ResultSet rs = cmd.executeQuery("select count(*) " +
+                        "from record201901040610 a join record201901040610 b " +
+                        "on a.userID=b.userID " +
+                        "where a.status='1' and b.status='0'and b.time>a.time and DATEDIFF(minute,a.time,b.time)<100" +
+                        "and a.stationID="+s1+" and (b.stationID="+s2+"or b.stationID="+"\'"+"51"+"\'"+")"+
+                        "and a.time between "+"\'"+sim.getStartTime()+"\'"+" and"+"\'"+sim.getEndTime()+"\'");
+                rs.next();
+                int res = rs.getInt(1);
+                System.out.println(res);
+                cmd.close();
+                con.close();
+                return res;
+            } else {
+                ResultSet rs = cmd.executeQuery("select count(*) " +
+                        "from record201901040610 a join record201901040610 b " +
+                        "on a.userID=b.userID " +
+                        "where a.status='1' and b.status='0'and b.time>a.time and DATEDIFF(minute,a.time,b.time)<100" +
+                        "and a.stationID=" + s1 + " and b.stationID=" + s2 +
+                        "and a.time between " + "\'" + sim.getStartTime() + "\'" + " and" + "\'" + sim.getEndTime() + "\'");
+                rs.next();
+                int res = rs.getInt(1);
+                cmd.close();
+                con.close();
+                System.out.println(res);
+                return res;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(0);

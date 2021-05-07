@@ -31,6 +31,16 @@ public class Station {
         this.space = space;
     }
 
+    private Space extendSpace = new Space();
+
+    public Space getExtendSpace() {
+        return extendSpace;
+    }
+
+    public void setExtendSpace(Space extendSpace) {
+        this.extendSpace = extendSpace;
+    }
+
     private ArrayList<Flow> FlowStack = new ArrayList<>();
 
     public ArrayList<Flow> getFlowStack() {

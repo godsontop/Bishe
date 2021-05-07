@@ -1,6 +1,9 @@
-package StationStuff;
+package Operator;
 
 import GraphAlg.PathFinder;
+import Simulation.Simulation;
+import StationStuff.Flow;
+import StationStuff.Station;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,6 +41,7 @@ public class FlowOperator {
             }
 
     }
+
     public int findTrain(Flow fl) throws Exception {
         PathFinder pf = new PathFinder();
 
@@ -46,6 +50,11 @@ public class FlowOperator {
         return nextStation;
 
     }
+    public void FlowIterate(ArrayList<Flow> flows){
+            for(int j=0;j<flows.size();j++) {
+                flows.get(j).setiKiTime(flows.get(j).getiKiTime()+ Simulation.getTimeStamp());
+            }
+        }
     public void nextLeaveIterator(Flow fl) throws Exception {
 //        找到下车（or换乘站）
 //        TODO:remove方面放到另一个函数防止条件判断时被错误调用
