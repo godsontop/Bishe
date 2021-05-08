@@ -23,10 +23,17 @@ public class Train {
 //    当前站间运行时间
     int supposeTime;
 //    预计站间运行时间
+    private boolean addedToSpace;
 
+    public boolean isAddedToSpace() {
+        return addedToSpace;
+    }
 
+    public void setAddedToSpace(boolean addedToSpace) {
+        this.addedToSpace = addedToSpace;
+    }
 
-    public Train(String line,ArrayList<Integer> trainRoute, int currentTime ,int finalStop) {
+    public Train(String line, ArrayList<Integer> trainRoute, int currentTime , int finalStop) {
         this.line = line;
         this.currentTime = currentTime;
         this.trainRoute = trainRoute;

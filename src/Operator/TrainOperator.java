@@ -274,7 +274,7 @@ public class TrainOperator {
     }
     public void updateColdDown(int[] timeList){
         for (int i =0;i<timeList.length;i++){
-            timeList[i]-= Simulation.getTimeStamp();
+            timeList[i]-= Simulation.getTimeStamp()*1000;
         }
     }
     public void trainGenerator(String time) throws ParseException {
@@ -316,18 +316,35 @@ public class TrainOperator {
 
     public void trainMove(Train tr,StationOperator so) {
 //        TODO:挺乱的，出错请分析这里
+//        首先更新区间客流，然后列车区间运行时间，当列车到站时归零时间
+//        TODO:关于区间客流：先写入文件后再移除
         tr.setCurrentTime(tr.getCurrentTime()+Simulation.getTimeStamp());
         int index = so.getIndexInArrayListFromStationIndex(tr.getNextStop(), so);
-        if (tr.getTrainRoute().contains("2号线") || tr.getTrainRoute().contains("4号线")) {
+        if (tr.getLine().contains("2号线") || tr.getLine().contains("4号线")) {
+            if (!tr.isAddedToSpace()) {
+                if (tr.getLine().contains("上行")) {
+                    so.getStations().get(index).getExtendSpace().addSpaceUpFlow(tr.getVolume());
+                } else {
+                    so.getStations().get(index).getExtendSpace().addSpaceDownFlow(tr.getVolume());
+                }
+                tr.setAddedToSpace(true);
+            }
             if (tr.getCurrentTime() >= so.getStations().get(index).getExtendSpace().getSpaceTime()) {
                 tr.setCurrentTime(0);
-            } else {
+            }
+        }else {
+            if(!tr.isAddedToSpace()) {
+                if (tr.getLine().contains("上行")) {
+                    so.getStations().get(index).getSpace().addSpaceUpFlow(tr.getVolume());
+                } else {
+                    so.getStations().get(index).getSpace().addSpaceDownFlow(tr.getVolume());
+                }
+            }
                 if (tr.getCurrentTime() >= so.getStations().get(index).getSpace().getSpaceTime()) {
                     tr.setCurrentTime(0);
                 }
             }
         }
-    }
 
     public boolean isAtFinalStop(Train tr) {
         if(tr.getNextStop()==tr.getFinalStop()) {
@@ -340,6 +357,13 @@ public class TrainOperator {
 //    public void deletePast(Train tr){
 //        tr.getTrainRoute().remove(0);
 //    }
+    public int calculateTrainVolume(Train tr){
+        int vol =0;
+        for (int i=0;i<tr.getTrainFlow().size();i++){
+            vol+=tr.getTrainFlow().get(i).getVolume();
+        }
+        return vol;
+    }
     public void atStation( TrainOperator to,StationOperator so) throws Exception {
 //        在车站要完成的事：装载客流、释放客流、更新列车车站
 //
@@ -350,11 +374,13 @@ public class TrainOperator {
                 if (isAtFinalStop(tr)) {
                     dropFlow(tr, so.getStations().get(index));
                     to.getLine1().remove(i);//将到达终点站的车移出队列！
+
                 } else {
                     tr.setCurrentTime(0);
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
+                    tr.setVolume(to.calculateTrainVolume(tr));
                 }
             }
         }
@@ -370,6 +396,7 @@ public class TrainOperator {
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
+                    tr.setVolume(to.calculateTrainVolume(tr));
                 }
             }
         }
@@ -385,6 +412,7 @@ public class TrainOperator {
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
+                    tr.setVolume(to.calculateTrainVolume(tr));
                 }
             }
         }
@@ -400,6 +428,7 @@ public class TrainOperator {
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
+                    tr.setVolume(to.calculateTrainVolume(tr));
                 }
             }
         }
@@ -415,6 +444,7 @@ public class TrainOperator {
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
+                    tr.setVolume(to.calculateTrainVolume(tr));
                 }
             }
         }
@@ -425,16 +455,26 @@ public class TrainOperator {
     void loadFlow(ArrayList<Flow> flows,Train tr) throws Exception {
 //        将车站客流转入到列车
         FlowOperator fo = new FlowOperator();
-        if(flows.size()==0) {
+        if (flows.size() == 0) {
 //            车站没有人就不加载
             return;
-        }else {
+        } else {
             for (int i = 0; i < flows.size(); i++) {
-                if (flows.get(i).getiKiTime() > 1000 * Flow.getInBoundTime()) {
-                    if (flows.get(i).getNextStop() == tr.getNextStop()) {
-                        flows.get(i).setLabel("运输中");
-                        tr.getTrainFlow().add(flows.get(i));
-                        flows.remove(i);
+                if (flows.get(i).getLabel().contains("入站")) {
+                    if (flows.get(i).getiKiTime() > 1000 * Flow.getInBoundTime()) {
+                        if (flows.get(i).getNextStop() == tr.getNextStop()) {
+                            flows.get(i).setLabel("运输中");
+                            tr.getTrainFlow().add(flows.get(i));
+                            flows.remove(i);
+                        }
+                    }
+                } else if (flows.get(i).getLabel().contains("换乘")) {
+                    if (flows.get(i).getiKiTime() > 1000 * Flow.getConvTime()) {
+                        if (flows.get(i).getNextStop() == tr.getNextStop()) {
+                            flows.get(i).setLabel("运输中");
+                            tr.getTrainFlow().add(flows.get(i));
+                            flows.remove(i);
+                        }
                     }
                 }
             }
@@ -453,6 +493,22 @@ public class TrainOperator {
                 flow.setCurrentStation(tr.getCurrentStop());//更新这股流的到达站
                 fo.nextLeaveIterator(flow); //更新这股流的下一站
                 flow.setLabel(fo.convORLeave(flow));
+                flow.setiKiTime(0);
+                flow.setIsPlanedRoute(0);
+                if(tr.getLine().contains("2号线") || tr.getLine().contains("4号线")){
+                    if(tr.getLine().contains("上行")){
+                        s.getExtendSpace().dropSpaceUpFlow(flow.getVolume());
+                    } else{
+                        s.getExtendSpace().dropSpaceDownFlow(flow.getVolume());
+                    }
+                } else {
+                    if(tr.getLine().contains("上行")){
+                        s.getSpace().dropSpaceUpFlow(flow.getVolume());
+                    } else{
+                        s.getSpace().dropSpaceDownFlow(flow.getVolume());
+                    }
+                }
+                fo.findTrain(flow);
                 s.getFlowStack().add(flow);
                 tr.getTrainFlow().remove(i);
 

@@ -34,11 +34,14 @@ public class FlowOperator {
 
             PathFinder pf = new PathFinder();
             ArrayList<String> route = pf.getODPath(fl.getStartIndex(), fl.getEndIndex());
+        if (fl.getIsPlanedRoute() == 0) {
             for (int i = 0; i < route.size(); i++) {
                 if (route.get(i).contains("号线")) {
-                    fl.getMidIndex().add(Integer.valueOf(route.get(i-1)));
+                    fl.getMidIndex().add(Integer.valueOf(route.get(i - 1)));
                 }
             }
+            fl.setIsPlanedRoute(1);
+        }
 
     }
 

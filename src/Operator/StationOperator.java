@@ -115,26 +115,24 @@ public class StationOperator {
         return conv;
     }
 
-    public void addVolume(ArrayList<Station> ar ,int startIndex,int endIndex,int volume,int dir) throws Exception {
+    public void addVolume(StationOperator so ,int startIndex,int endIndex,int volume,int dir) throws Exception {
 //        需要参数：所有车站的列表，进站出战、客流数、方向
         FlowOperator fo = new FlowOperator();
-        Station s = ar.get(startIndex);
+        Station s = so.getStations().get(so.getIndexInArrayListFromStationIndex(startIndex,so));
         ArrayList<Flow> flow = s.getFlowStack();
         Flow fl = new Flow(volume,dir,startIndex,endIndex, Simulation.getTimeStamp()*1000);
         fl.setCurrentStation(startIndex);
         fo.planRoute(fl);
-        fl.setLabel("候车");
+        fo.findTrain(fl);
+        fl.setLabel("入站");
         flow.add(fl);
-        s.setStationFlowUp(queryVolume(flow,1));
-        s.setStationFlowDown(queryVolume(flow,0));
-
-
 //        if(dir == 1){
 //            s.setStationFlowUp(volume);
 //        } else {
 //            s.setStationFlowDown(volume);
 //        }
     }
+
     public void stationFlowIterate(ArrayList<Station>st){
         FlowOperator fo = new FlowOperator();
         for(int i=0;i<st.size();i++){
@@ -166,6 +164,13 @@ public class StationOperator {
             }
         }
         return -1;
+    }
+
+    public boolean hasExtendSpace(Station s){
+        if (s.getExtendSpace().getIndex()!=-1){
+            return true;
+        }
+        return false;
     }
 
     public void loadToSpace(){

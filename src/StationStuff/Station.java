@@ -19,7 +19,7 @@ public class Station {
     }
 
     //右or下 0
-    private int stationFlow =stationFlowDown+stationFlowUp;
+    private int stationFlow ;
 
     private Space space = new Space();
 
@@ -32,6 +32,8 @@ public class Station {
     }
 
     private Space extendSpace = new Space();
+
+
 
     public Space getExtendSpace() {
         return extendSpace;

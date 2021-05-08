@@ -18,9 +18,19 @@ public class Flow {
     private int iKiTime;
     private int currentStation;
     private int nextStop;
+    private int isPlanedRoute;
     private String label;
     private static int inBoundTime = 120;
+    private static int convTime =120;
     private static int outBoundTime = 120;
+
+    public int getIsPlanedRoute() {
+        return isPlanedRoute;
+    }
+
+    public void setIsPlanedRoute(int isPlanedRoute) {
+        this.isPlanedRoute = isPlanedRoute;
+    }
 
     public static int getInBoundTime() {
         return inBoundTime;
@@ -113,4 +123,11 @@ public class Flow {
         this.endIndex = endIndex;
     }
 
+    public static int getConvTime() {
+        return convTime;
+    }
+
+    public static void setConvTime(int convTime) {
+        Flow.convTime = convTime;
+    }
 }
