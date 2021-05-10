@@ -1,14 +1,16 @@
 package ReadSql;
 import Simulation.Simulation;
+import Util.StringUtil;
+import cn.hutool.core.util.StrUtil;
 
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-//TODO：update根据迭代方案修改
 
 public class odGenerate {
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public odGenerate()  {
     }
     public int getSpaceTime(int index1, int index2){
@@ -38,12 +40,7 @@ public class odGenerate {
             cmd.close();//关闭命令对象连接
             con.close();//关闭数据库连接
 //            System.out.println(res);
-            if(res==0) {
-//                TODO:处理的不好
-                return 0;
-            } else {
-                return res;
-            }
+            return res;
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(0);
@@ -52,55 +49,57 @@ public class odGenerate {
 //        err 12:SQL exception
     }
 
-    public int getOD(int O, int D, Simulation sim) {
-        String s1 = "\'"+String.valueOf(O)+"\'";
-        String s2 = "\'"+String.valueOf(D)+"\'";
+    public int getOD(int O, int D, String time,Connection con) throws ParseException {
+        String s1 = "\'"+O+"\'";
+        String s2 = "\'"+D+"\'";
+        Date date =df.parse(time);
+        date.setTime(date.getTime()+1000*Simulation.getTimeStamp());
+        String timePlusOneTimeStamp = df.format(date);
+        String startTime =StrUtil.sub(time,11,13) ;
+        int startHour= Integer.parseInt(startTime);
+        String endTime =String.format("%02d", StringUtil.hourPlus(startHour+1));
+//        String startDate =StrUtil.sub(time,8,10);
+//        String endDate =StringUtil.predictEndDate(Integer.parseInt(startDate),Integer.parseInt(startTime),Integer.parseInt(endTime));
 //        System.out.println(s1+s2);
-        SqlToJava stj = new SqlToJava();
         try {
-            Connection con = stj.getConnection();
 //            System.out.println("开始读取数据");
             Statement cmd = con.createStatement();
             if(O==10){
                 ResultSet rs = cmd.executeQuery("select count(*) " +
-                        "from record201901040610 a join record201901040610 b " +
+                        "from metro"+startTime+endTime+" a join metro"+startTime+endTime+" b " +
                         "on a.userID=b.userID " +
                         "where a.status='1' and b.status='0'and b.time>a.time and DATEDIFF(minute,a.time,b.time)<100" +
                         "and (a.stationID="+s1+"or a.stationID="+"\'"+"51"+"\'"+")"+" and b.stationID="+s2+
-                        "and a.time between "+"\'"+sim.getStartTime()+"\'"+" and"+"\'"+sim.getEndTime()+"\'");
+                        "and a.time between "+"\'"+time+"\'"+" and"+"\'"+timePlusOneTimeStamp+"\'");
                 rs.next();
                 int res = rs.getInt(1);
-//            System.out.println(res);
+            System.out.println(res);
 //            // 关闭连接
                 cmd.close();//关闭命令对象连接
-
-                con.close();//关闭数据库连接
             System.out.println(res);
                 return res;
             } else if(D==10){
                 ResultSet rs = cmd.executeQuery("select count(*) " +
-                        "from record201901040610 a join record201901040610 b " +
+                        "from metro"+startTime+endTime+" a join metro"+startTime+endTime+" b " +
                         "on a.userID=b.userID " +
                         "where a.status='1' and b.status='0'and b.time>a.time and DATEDIFF(minute,a.time,b.time)<100" +
                         "and a.stationID="+s1+" and (b.stationID="+s2+"or b.stationID="+"\'"+"51"+"\'"+")"+
-                        "and a.time between "+"\'"+sim.getStartTime()+"\'"+" and"+"\'"+sim.getEndTime()+"\'");
+                        "and a.time between "+"\'"+time+"\'"+" and"+"\'"+timePlusOneTimeStamp+"\'");
                 rs.next();
                 int res = rs.getInt(1);
                 System.out.println(res);
                 cmd.close();
-                con.close();
                 return res;
             } else {
                 ResultSet rs = cmd.executeQuery("select count(*) " +
-                        "from record201901040610 a join record201901040610 b " +
+                        "from metro"+startTime+endTime+" a join metro"+startTime+endTime+" b " +
                         "on a.userID=b.userID " +
                         "where a.status='1' and b.status='0'and b.time>a.time and DATEDIFF(minute,a.time,b.time)<100" +
                         "and a.stationID=" + s1 + " and b.stationID=" + s2 +
-                        "and a.time between " + "\'" + sim.getStartTime() + "\'" + " and" + "\'" + sim.getEndTime() + "\'");
+                        "and a.time between " + "\'" + time+ "\'" + " and" + "\'" + timePlusOneTimeStamp+ "\'");
                 rs.next();
                 int res = rs.getInt(1);
                 cmd.close();
-                con.close();
                 System.out.println(res);
                 return res;
             }

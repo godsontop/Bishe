@@ -7,6 +7,7 @@ import java.util.Date;
 public class Simulation {
 //    仿真模块，应该能完成：提供当前时间和结束时间、每个循环update()
     private static int timeStamp = 60;
+    private static int simulateTimes =180;
     private String startTime = "2019-01-04 06:00:00";
     //    private String endTime = "2019-01-04 07:00:00";
     private String endTime = analysEndTime(startTime);
@@ -21,6 +22,14 @@ public class Simulation {
 
     public void setTimeStamp(int timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public static int getSimulateTimes() {
+        return simulateTimes;
+    }
+
+    public static void setSimulateTimes(int simulateTimes) {
+        Simulation.simulateTimes = simulateTimes;
     }
 
     public String getStartTime() {
@@ -38,6 +47,7 @@ public class Simulation {
 
 
     public String analysEndTime(String start) throws ParseException {
+//        TODO:111
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date =  df.parse(start);
         date.setTime(date.getTime() + 1000*timeStamp);

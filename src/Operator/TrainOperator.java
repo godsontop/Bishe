@@ -317,7 +317,7 @@ public class TrainOperator {
     public void trainMove(Train tr,StationOperator so) {
 //        TODO:挺乱的，出错请分析这里
 //        首先更新区间客流，然后列车区间运行时间，当列车到站时归零时间
-//        TODO:关于区间客流：先写入文件后再移除
+//        关于区间客流：先写入文件后再移除
         tr.setCurrentTime(tr.getCurrentTime()+Simulation.getTimeStamp());
         int index = so.getIndexInArrayListFromStationIndex(tr.getNextStop(), so);
         if (tr.getLine().contains("2号线") || tr.getLine().contains("4号线")) {

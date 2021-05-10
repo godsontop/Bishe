@@ -6,9 +6,14 @@ import Operator.FlowOperator;
 import Operator.StationOperator;
 import Operator.TrainOperator;
 import StationStuff.Station;
+import Util.ReadSelectedLine;
+import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.file.FileWriter;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 
 public class Simulator {
@@ -24,10 +29,12 @@ public class Simulator {
         FileWriter stationDownFlowWriter =new FileWriter(new File("stationDownFlowWriter.txt"));
         FileWriter spaceUpFlowWriter = new FileWriter(new File("spaceFlow.txt"));
         FileWriter spaceDownFlowWriter = new FileWriter(new File("spaceFlow.txt"));
+        FileReader odReader = new FileReader("odInfoWriter");
 
 
 
-        for (int i = 1; i <= 180; i++) {
+
+        for (int i = 1; i <= Simulation.getSimulateTimes(); i++) {
             stationFlowUpdate(so);//增加车站客流的ikiTime
             currentTrainMove(to,so);
             statSpaceFlow(so,spaceUpFlowWriter,spaceDownFlowWriter);
@@ -41,6 +48,7 @@ public class Simulator {
     }
     protected static void stationInbondUpdate(StationOperator so, odGenerate od, Simulation sim, FlowOperator fo) throws Exception {
 //        能够：更新每个车站的乘客流、为乘客流规划线路
+        BufferedReader reader =new BufferedReader(new InputStreamReader(new FileInputStream("odInfoWriter.txt")));
         for (int j = 0; j <= 80; j++) {
             if (j == 51) {
 //                    51号站点不存在
@@ -54,7 +62,8 @@ public class Simulator {
                     continue;
                 }
                 PathFinder pf = new PathFinder();
-                so.addVolume(so, j, k, od.getOD(j, k,sim), fo.getDir(pf.getODPath(j, k)));
+//                so.addVolume(so, j, k, od.getOD(j, k,sim), fo.getDir(pf.getODPath(j, k)));
+                so.addVolume(so, j, k, ReadSelectedLine.readLineVarFile(reader), fo.getDir(pf.getODPath(j, k)));
             }
             for(int x =0;x<so.getStations().get(so.getIndexInArrayListFromStationIndex(j,so)).getFlowStack().size();x++) {
                 fo.planRoute(so.getStations().get(so.getIndexInArrayListFromStationIndex(j,so)).getFlowStack().get(x));
@@ -63,8 +72,8 @@ public class Simulator {
 //                String s = so.getStations().get(j);
 //                String s1 = String.valueOf(j);
 //                System.out.println("在"+sim.getStartTime()+"到"+sim.getEndTime()+s1 + "号站的客流是" + s.getStationFlow());
-
         }
+        reader.close();
 
     }
     protected static void stationFlowUpdate(StationOperator so){
