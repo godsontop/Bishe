@@ -91,8 +91,10 @@ public class FlowOperator {
             return;
         } else {
             for (int i=0;i<flows.size();i++) {
-                if (flows.get(i).getiKiTime()>Flow.getOutBoundTime()*1000) {
-                    flows.remove(i);
+                if(flows.get(i).getLabel().contains("出站")) {
+                    if (flows.get(i).getiKiTime() > Flow.getOutBoundTime() * 1000) {
+                        flows.remove(i);
+                    }
                 }
             }
         }
