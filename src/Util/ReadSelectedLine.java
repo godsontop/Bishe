@@ -20,7 +20,7 @@ public class ReadSelectedLine {
 //        }
 //        reader.close();
 //    }
-    public static int readLineVarFile(BufferedReader reader) throws IOException {
+    public int readLineVarFile(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         return Integer.parseInt(line);
     }

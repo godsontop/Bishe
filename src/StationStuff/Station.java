@@ -9,6 +9,25 @@ public class Station {
 //左or上 1
     private int stationFlowDown;
 
+    private int convFlowUp;
+    private int convFlowDown;
+
+    public int getConvFlowUp() {
+        return convFlowUp;
+    }
+
+    public void setConvFlowUp(int convFlowUp) {
+        this.convFlowUp = convFlowUp;
+    }
+
+    public int getConvFlowDown() {
+        return convFlowDown;
+    }
+
+    public void setConvFlowDown(int convFlowDown) {
+        this.convFlowDown = convFlowDown;
+    }
+
     public int getStationFlow() {
 
         return stationFlowUp+stationFlowDown;

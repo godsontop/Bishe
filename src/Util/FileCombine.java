@@ -33,7 +33,11 @@ public class FileCombine {
     }
 
     public static void main(String[] args) throws IOException {
-        combine("D:\\课设\\Metro_train\\test","1.csv");
+        try {
+            FileCombine.combine("D:\\IdeaProjects\\Bishe\\data\\odDataTemp","D:\\IdeaProjects\\Bishe\\data\\odData\\2019-01-04 09.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

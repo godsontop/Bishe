@@ -69,15 +69,15 @@ public class TrainOperator {
     }
 
     private static final int[] line1RouteUp = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
-    private static final int[] line1RouteDown = revelArr(line1RouteUp);
+    private static final int[] line1RouteDown = {20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0};
     private static final int[] line101RouteUp = {20,21,22,23,24,25,26,27};
-    private static final int[] line101RouteDown = revelArr(line101RouteUp);
+    private static final int[] line101RouteDown = {27,26,25,24,23,22,21,20};
     private static final int[] line102RouteUp = {20,28,29,30,31,32,33};
-    private static final int[] line102RouteDown = revelArr(line102RouteUp);
+    private static final int[] line102RouteDown = {33,32,31,30,29,28,20};
     private static final int[] line2RouteUp = {34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,10,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66};
-    private static final int[] line2RouteDown = revelArr(line2RouteUp);
+    private static final int[] line2RouteDown = {66,65,64,63,62,61,60,59,58,57,56,55,54,53,52,10,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34};
     private static final int[] line4RouteUp = {67,68,69,70,71,72,73,74,5,75,76,77,46,78,79,80,16};
-    private static final int[] line4RouteDown = revelArr(line4RouteUp);
+    private static final int[] line4RouteDown = {16,80,79,78,46,77,76,75,5,74,73,72,71,70,69,68,67};
 
     private static final String line1UpFirst = "2019-01-04 5:54:00";
     private static final String line1DownFirst = "2019-01-04 6:02:00";
@@ -222,7 +222,7 @@ public class TrainOperator {
             if(dir ==1) {
                 Line101.add(new Train("1号线支线1上行", intToInteger(line101RouteUp), 0,27));
             } else {
-                Line2.add(new Train("1号线支线1下行", intToInteger(line101RouteDown), 0,20));
+                Line101.add(new Train("1号线支线1下行", intToInteger(line101RouteDown), 0,20));
             }
         } else if(flag == 5){
             if(dir ==1) {
@@ -293,6 +293,12 @@ public class TrainOperator {
         }
     }
 
+    public static void main(String[] args) {
+        TrainOperator to = new TrainOperator();
+        to.trainGenerate(1,1);
+        System.out.println(to.getLine1().get(0).getTrainRoute());;
+    }
+
     public void analysNextStop(Train tr) {
 //        分析下一站！！并modify路线数组！！
         tr.setCurrentStop(tr.getTrainRoute().get(0));
@@ -315,36 +321,100 @@ public class TrainOperator {
     }
 
     public void trainMove(Train tr,StationOperator so) {
-//        TODO:挺乱的，出错请分析这里
 //        首先更新区间客流，然后列车区间运行时间，当列车到站时归零时间
 //        关于区间客流：先写入文件后再移除
-        tr.setCurrentTime(tr.getCurrentTime()+Simulation.getTimeStamp());
-        int index = so.getIndexInArrayListFromStationIndex(tr.getNextStop(), so);
+        tr.setCurrentTime(tr.getCurrentTime() + 1000*Simulation.getTimeStamp());
+        spaceDropFlowManager(tr,so);
+
+    }
+
+    private void spaceAddFlowManager(Train tr, StationOperator so){
+//        TODO:等dropFlow完，再UpateTrainFlow，再执行此函数
+        int indexUp = so.getIndexInArrayListFromStationIndex(tr.getNextStop(),so);
+        int indexDown = so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(),so);
         if (tr.getLine().contains("2号线") || tr.getLine().contains("4号线")) {
-            if (!tr.isAddedToSpace()) {
-                if (tr.getLine().contains("上行")) {
-                    so.getStations().get(index).getExtendSpace().addSpaceUpFlow(tr.getVolume());
-                } else {
-                    so.getStations().get(index).getExtendSpace().addSpaceDownFlow(tr.getVolume());
+            if(so.hasExtendSpace(so.getStations().get(so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(),so)))) {
+                if (!tr.isAddedToSpace()) {
+                    if (tr.getLine().contains("上行")) {
+                        so.getStations().get(indexUp).getExtendSpace().addSpaceUpFlow(tr.getVolume());
+                    } else {
+                        so.getStations().get(indexDown).getExtendSpace().addSpaceDownFlow(tr.getVolume());
+                    }
+                    tr.setAddedToSpace(true);
                 }
-                tr.setAddedToSpace(true);
-            }
-            if (tr.getCurrentTime() >= so.getStations().get(index).getExtendSpace().getSpaceTime()) {
-                tr.setCurrentTime(0);
+            } else{
+                if (!tr.isAddedToSpace()) {
+                    if (tr.getLine().contains("上行")) {
+                        so.getStations().get(indexUp).getSpace().addSpaceUpFlow(tr.getVolume());
+                    } else {
+                        so.getStations().get(indexDown).getSpace().addSpaceDownFlow(tr.getVolume());
+                    }
+                    tr.setAddedToSpace(true);
+                }
             }
         }else {
             if(!tr.isAddedToSpace()) {
                 if (tr.getLine().contains("上行")) {
-                    so.getStations().get(index).getSpace().addSpaceUpFlow(tr.getVolume());
+                    so.getStations().get(indexUp).getSpace().addSpaceUpFlow(tr.getVolume());
                 } else {
-                    so.getStations().get(index).getSpace().addSpaceDownFlow(tr.getVolume());
+                    so.getStations().get(indexDown).getSpace().addSpaceDownFlow(tr.getVolume());
                 }
+                tr.setAddedToSpace(true);
             }
-                if (tr.getCurrentTime() >= so.getStations().get(index).getSpace().getSpaceTime()) {
-                    tr.setCurrentTime(0);
-                }
-            }
+
         }
+    }
+    private static int currentOrNext(Train tr ){
+        if(tr.getLine().contains("上行")){
+            return tr.getNextStop();
+        }
+        return tr.getCurrentStop();
+    }
+    private void spaceDropFlowManager(Train tr, StationOperator so){
+        int indexUp = so.getIndexInArrayListFromStationIndex(tr.getNextStop(),so);
+        int indexDown = so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(),so);
+        if (tr.getLine().contains("2号线") || tr.getLine().contains("4号线")) {
+            if(so.hasExtendSpace(so.getStations().get(so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(),so)))){
+                if (tr.getCurrentTime() >= so.getStations().get(so.getIndexInArrayListFromStationIndex(currentOrNext(tr), so)).getSpace().getSpaceTime()) {
+                    tr.setCurrentTime(0);
+                    if (tr.isAddedToSpace()) {
+                        if (tr.getLine().contains("上行")) {
+                            so.getStations().get(indexUp).getExtendSpace().dropSpaceUpFlow(tr.getVolume());
+                        } else {
+                            so.getStations().get(indexDown).getExtendSpace().dropSpaceDownFlow(tr.getVolume());
+                        }
+                        tr.setAddedToSpace(false);
+                    }
+                }
+            } else {
+                if (tr.getCurrentTime() >= so.getStations().get(so.getIndexInArrayListFromStationIndex(currentOrNext(tr), so)).getSpace().getSpaceTime()) {
+                    tr.setCurrentTime(0);
+                    if (tr.isAddedToSpace()) {
+                        if (tr.getLine().contains("上行")) {
+                            so.getStations().get(indexUp).getSpace().dropSpaceUpFlow(tr.getVolume());
+                        } else {
+                            so.getStations().get(indexDown).getSpace().dropSpaceDownFlow(tr.getVolume());
+                        }
+                        tr.setAddedToSpace(false);
+                    }
+                }
+            }
+        }else {
+            if (tr.getCurrentTime() >= so.getStations().get(so.getIndexInArrayListFromStationIndex(currentOrNext(tr),so)).getSpace().getSpaceTime()) {
+                tr.setCurrentTime(0);
+                if (tr.isAddedToSpace()) {
+                    if (tr.getLine().contains("上行")) {
+                        so.getStations().get(indexUp).getSpace().dropSpaceUpFlow(tr.getVolume());
+                    } else {
+                        so.getStations().get(indexDown).getSpace().dropSpaceDownFlow(tr.getVolume());
+                    }
+                    tr.setAddedToSpace(false);
+                }
+            }
+
+        }
+
+    }
 
     public boolean isAtFinalStop(Train tr) {
         if(tr.getNextStop()==tr.getFinalStop()) {
@@ -364,87 +434,98 @@ public class TrainOperator {
         }
         return vol;
     }
+
     public void atStation( TrainOperator to,StationOperator so) throws Exception {
 //        在车站要完成的事：装载客流、释放客流、更新列车车站
 //
+
         for (int i=0;i<to.getLine1().size();i++){
             Train tr = to.getLine1().get(i);
-            int index = so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(), so);
+            int index = so.getIndexInArrayListFromStationIndex(tr.getNextStop(), so);
             if(isTrainAtStation(tr)) {
                 if (isAtFinalStop(tr)) {
                     dropFlow(tr, so.getStations().get(index));
                     to.getLine1().remove(i);//将到达终点站的车移出队列！
 
                 } else {
-                    tr.setCurrentTime(0);
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
                     tr.setVolume(to.calculateTrainVolume(tr));
+
+                    to.spaceAddFlowManager(tr,so);
+
                 }
             }
         }
         for (int i=0;i<to.getLine2().size();i++){
             Train tr = to.getLine2().get(i);
-            int index = so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(), so);
+            int index = so.getIndexInArrayListFromStationIndex(tr.getNextStop(), so);
             if(isTrainAtStation(tr)) {
                 if (isAtFinalStop(tr)) {
                     dropFlow(tr, so.getStations().get(index));
                     to.getLine2().remove(i);//将到达终点站的车移出队列！
                 } else {
-                    tr.setCurrentTime(0);
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
                     tr.setVolume(to.calculateTrainVolume(tr));
+
+                    to.spaceAddFlowManager(tr,so);
+
                 }
             }
         }
         for (int i=0;i<to.getLine4().size();i++){
             Train tr = to.getLine4().get(i);
-            int index = so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(), so);
+            int index = so.getIndexInArrayListFromStationIndex(tr.getNextStop(), so);
             if(isTrainAtStation(tr)) {
                 if (isAtFinalStop(tr)) {
                     dropFlow(tr, so.getStations().get(index));
-                    to.getLine1().remove(4);//将到达终点站的车移出队列！
+                    to.getLine4().remove(i);//将到达终点站的车移出队列！
                 } else {
-                    tr.setCurrentTime(0);
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
                     tr.setVolume(to.calculateTrainVolume(tr));
+
+                    to.spaceAddFlowManager(tr,so);
+
                 }
             }
         }
         for (int i=0;i<to.getLine101().size();i++){
             Train tr = to.getLine101().get(i);
-            int index = so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(), so);
+            int index = so.getIndexInArrayListFromStationIndex(tr.getNextStop(), so);
             if(isTrainAtStation(tr)) {
                 if (isAtFinalStop(tr)) {
                     dropFlow(tr, so.getStations().get(index));
                     to.getLine101().remove(i);//将到达终点站的车移出队列！
                 } else {
-                    tr.setCurrentTime(0);
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
                     tr.setVolume(to.calculateTrainVolume(tr));
+
+                    to.spaceAddFlowManager(tr,so);
+
                 }
             }
         }
         for (int i=0;i<to.getLine102().size();i++){
             Train tr = to.getLine102().get(i);
-            int index = so.getIndexInArrayListFromStationIndex(tr.getCurrentStop(), so);
+            int index = so.getIndexInArrayListFromStationIndex(tr.getNextStop(), so);
             if(isTrainAtStation(tr)) {
                 if (isAtFinalStop(tr)) {
                     dropFlow(tr, so.getStations().get(index));
                     to.getLine102().remove(i);//将到达终点站的车移出队列！
                 } else {
-                    tr.setCurrentTime(0);
                     analysNextStop(tr);
                     dropFlow(tr, so.getStations().get(index));
                     loadFlow(so.getStations().get(index).getFlowStack(), tr);
                     tr.setVolume(to.calculateTrainVolume(tr));
+                    to.spaceAddFlowManager(tr,so);
+
                 }
             }
         }
@@ -452,7 +533,7 @@ public class TrainOperator {
 
     }
 
-    void loadFlow(ArrayList<Flow> flows,Train tr) throws Exception {
+    void loadFlow(ArrayList<Flow> flows,Train tr)  {
 //        将车站客流转入到列车
         FlowOperator fo = new FlowOperator();
         if (flows.size() == 0) {
@@ -495,19 +576,19 @@ public class TrainOperator {
                 flow.setLabel(fo.convORLeave(flow));
                 flow.setiKiTime(0);
                 flow.setIsPlanedRoute(0);
-                if(tr.getLine().contains("2号线") || tr.getLine().contains("4号线")){
-                    if(tr.getLine().contains("上行")){
-                        s.getExtendSpace().dropSpaceUpFlow(flow.getVolume());
-                    } else{
-                        s.getExtendSpace().dropSpaceDownFlow(flow.getVolume());
-                    }
-                } else {
-                    if(tr.getLine().contains("上行")){
-                        s.getSpace().dropSpaceUpFlow(flow.getVolume());
-                    } else{
-                        s.getSpace().dropSpaceDownFlow(flow.getVolume());
-                    }
-                }
+//                if(tr.getLine().contains("2号线") || tr.getLine().contains("4号线")){
+//                    if(tr.getLine().contains("上行")){
+//                        s.getExtendSpace().dropSpaceUpFlow(flow.getVolume());
+//                    } else{
+//                        s.getExtendSpace().dropSpaceDownFlow(flow.getVolume());
+//                    }
+//                } else {
+//                    if(tr.getLine().contains("上行")){
+//                        s.getSpace().dropSpaceUpFlow(flow.getVolume());
+//                    } else{
+//                        s.getSpace().dropSpaceDownFlow(flow.getVolume());
+//                    }
+//                }
                 fo.findTrain(flow);
                 s.getFlowStack().add(flow);
                 tr.getTrainFlow().remove(i);

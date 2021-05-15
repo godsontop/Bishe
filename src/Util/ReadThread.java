@@ -34,7 +34,7 @@ class ReadThread extends Thread {
     }
 
     public void run() {
-        for (int i = 1; i < simTime; i++) {
+        for (int i = 1; i <= simTime; i++) {
             for (int j = 0; j <= 80; j++) {
                 if (j == 51) {
 //                    51号站点不存在

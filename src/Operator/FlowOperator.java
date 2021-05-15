@@ -45,17 +45,18 @@ public class FlowOperator {
 
     }
 
-    public int findTrain(Flow fl) throws Exception {
+    public void findTrain(Flow fl) throws Exception {
+//        为乘客找火车
         PathFinder pf = new PathFinder();
 
         int nextStation = Integer.parseInt(pf.getODPath(fl.getStartIndex(), fl.getEndIndex()).get(1));
 
-        return nextStation;
+        fl.setNextStop(nextStation);
 
     }
     public void FlowIterate(ArrayList<Flow> flows){
             for(int j=0;j<flows.size();j++) {
-                flows.get(j).setiKiTime(flows.get(j).getiKiTime()+ Simulation.getTimeStamp());
+                flows.get(j).setiKiTime(flows.get(j).getiKiTime()+ Simulation.getTimeStamp()*1000);
             }
         }
     public void nextLeaveIterator(Flow fl) throws Exception {

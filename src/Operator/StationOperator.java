@@ -34,7 +34,7 @@ public class StationOperator {
         odGenerate od = new odGenerate();
         Station s1 = new Station(index);
         s1.getSpace().setIndex(index);
-        s1.getSpace().setSpaceTime(od.getSpaceTime(index-1,index));
+        s1.getSpace().setSpaceTime(od.getSpaceTime(index-1,index)*1000*60);
 //        当不存在该区间，区间时间是0 see:ctrl+b
         ar.add(s1);
 
@@ -99,7 +99,7 @@ public class StationOperator {
         odGenerate od = new odGenerate();
         Station st = new Station(index);
         st.getSpace().setIndex(index);
-        st.getSpace().setSpaceTime(od.getSpaceTime(index,nextIndex));
+        st.getSpace().setSpaceTime(od.getSpaceTime(index,nextIndex)*1000*60);
         return st;
 
 
@@ -111,7 +111,7 @@ public class StationOperator {
         conv.getSpace().setIndex(index);
         conv.getSpace().setSpaceTime(spaceTime1);
         conv.getExtendSpace().setIndex(extendIndex);
-        conv.getExtendSpace().setSpaceTime(spaceTime2);
+        conv.getExtendSpace().setSpaceTime(spaceTime2*1000*60);
         return conv;
     }
 
@@ -120,12 +120,14 @@ public class StationOperator {
         FlowOperator fo = new FlowOperator();
         Station s = so.getStations().get(so.getIndexInArrayListFromStationIndex(startIndex,so));
         ArrayList<Flow> flow = s.getFlowStack();
-        Flow fl = new Flow(volume,dir,startIndex,endIndex, Simulation.getTimeStamp()*1000);
-        fl.setCurrentStation(startIndex);
-        fo.planRoute(fl);
-        fo.findTrain(fl);
-        fl.setLabel("入站");
-        flow.add(fl);
+        if(volume > 0) {
+            Flow fl = new Flow(volume, dir, startIndex, endIndex, Simulation.getTimeStamp() * 1000 / 2);
+            fl.setCurrentStation(startIndex);
+            fo.planRoute(fl);
+            fo.findTrain(fl);
+            fl.setLabel("入站");
+            flow.add(fl);
+        }
 //        if(dir == 1){
 //            s.setStationFlowUp(volume);
 //        } else {
@@ -133,13 +135,10 @@ public class StationOperator {
 //        }
     }
 
-    public void stationFlowIterate(ArrayList<Station>st){
+    public void stationFlowIterate(StationOperator so){
         FlowOperator fo = new FlowOperator();
-        for(int i=0;i<st.size();i++){
-            if(i==51){
-                continue;
-            }
-            fo.FlowIterate(st.get(i).getFlowStack());
+        for(int i=0;i<so.getStations().size();i++){
+            fo.FlowIterate(so.getStations().get(i).getFlowStack());
         }
     }
 
@@ -148,6 +147,17 @@ public class StationOperator {
         for (int i = 0;i<flows.size();i++) {
             if(flows.get(i).getDir() == dir) {
                 vol+=flows.get(i).getVolume();
+            }
+        }
+        return vol;
+    }
+    public int queryConvVolume(ArrayList<Flow> flows , int dir){
+        int vol =0;
+        for(int i = 0; i<flows.size();i++){
+            if(flows.get(i).getDir() == dir) {
+                if (flows.get(i).getLabel() == "换乘") {
+                    vol+=flows.get(i).getVolume();
+                }
             }
         }
         return vol;

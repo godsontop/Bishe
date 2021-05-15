@@ -19,7 +19,7 @@ public class queryODInMutiThread {
     }
     public static void main(String[] args) throws ParseException {
         StationOperator so = new StationOperator();//unique
-        String time = "2019-01-04 08:00:00";
+        String time = "2019-01-04 10:00:00";
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = df.parse(time);
         so.initStation();
